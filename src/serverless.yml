@@ -28,6 +28,20 @@ functions:
   loghandler:
     handler: loghandler/index.handler
     timeout: 300
+  echo:
+    hander: echo/index.handler
+    events: 
+      - http:
+          path: echo
+          method: post
+          cors: ${self:custom.currentVars.cors}
+  helloworld:
+    hander: helloworld/index.handler
+    events: 
+      - http:
+          path: helloworld
+          method: get
+          cors: ${self:custom.currentVars.cors}
   logreceiver:
     handler: logreceiver/index.handler
     events:
