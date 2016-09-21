@@ -1,0 +1,14 @@
+{
+    "Type": "AWS::Logs::SubscriptionFilter",
+    "DependsOn": "LoggingLambdaPermission",
+    "Properties": {
+        "LogGroupName": "LogGroup",
+        "FilterPattern": "",
+        "DestinationArn": {
+            "Fn::GetAtt": [
+                "LoghandlerLambdaFunction",
+                "Arn"
+            ]
+        }
+    }
+}

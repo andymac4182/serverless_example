@@ -1,0 +1,47 @@
+service: example
+
+provider:
+  name: aws
+  stage: dev
+  region: ap-southeast-2
+  runtime: nodejs4.3
+  memorySize: 128
+  timeout: 30
+  profile: ${self:custom.currentVars.profile}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "lambda:InvokeFunction"
+        - 's3:PutObject'
+        - 's3:GetObject'
+      Resource: "*"
+
+plugins:
+  - serverless-webpack
+  - loggingPlugin
+
+custom: ${file(./serverless.vars.yml)}
+
+functions:
+  jwtAuthorizer:
+    handler: authorizer/index.handler
+  loghandler:
+    handler: loghandler/index.handler
+    timeout: 300
+  logreceiver:
+    handler: logreceiver/index.handler
+    events:
+      - http:
+          path: log
+          method: post
+          cors: ${self:custom.currentVars.cors}
+          authorizer: ${self:custom.currentVars.authorizer}
+
+resources:
+  Resources:
+    LoggingLambdaPermission:
+      Type: AWS::Lambda::Permission
+      Properties:
+        FunctionName: { "Fn::GetAtt": ["LoghandlerLambdaFunction", "Arn" ] }
+        Action: lambda:InvokeFunction
+        Principal: { "Fn::Join" : ["", ["logs.", { "Ref" : "AWS::Region"}, ".amazonaws.com" ] ] }

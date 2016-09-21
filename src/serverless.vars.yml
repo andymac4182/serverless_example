@@ -1,0 +1,26 @@
+default:
+  profile: default
+  authorizationHeader: method.request.header.Authorization
+  webpackConfigFile: webpack.local.config.js
+  CorsOrigins: 
+    - '*'
+stages:
+  prod:
+    profile: ThirdAccount
+    webpackConfigFile: webpack.octopus.config.js
+  staging:
+      profile: SecondAccount
+      webpackConfigFile: webpack.octopus.config.js
+
+currentStage: ${opt:stage, self:provider.stage}
+currentVars:
+  authorizationHeader: ${self:custom.stages.${self:custom.currentStage}.authorizationHeader, self:custom.default.authorizationHeader}
+  webpackConfigFile: ${self:custom.stages.${self:custom.currentStage}.webpackConfigFile, self:custom.default.webpackConfigFile}
+  CorsOrigins: ${self:custom.stages.${self:custom.currentStage}.CorsOrigins, self:custom.default.CorsOrigins}
+  profile: ${self:custom.stages.${self:custom.currentStage}.profile, self:custom.default.profile}
+  authorizer:
+    name: jwtAuthorizer
+    identitySource: ${self:custom.currentVars.authorizationHeader}
+  cors:
+    origins: ${self:custom.currentVars.CorsOrigins}
+webpack: ${self:custom.currentVars.webpackConfigFile}
